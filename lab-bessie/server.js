@@ -9,21 +9,18 @@ const ee = new EE();
 
 const pool = [];
 
-// allows to broadcast message to everyone
 ee.on('@all', function(client, string) {
   pool.forEach( c => {
     c.socket.write( `${client.nickname}: ${string}`);
   });
 });
 
-// allows to change nickname
 ee.on('@nickname' , function(client, string) {
   let nickname = string.split(' ').shift().trim();
   client.nickname = nickname;
   client.socket.write(`user nickname has been changed to ${nickname}\n`);
 });
 
-// allows you to direct message a user
 ee.on('@dm', function(client, string) {
   var nickname = string.split(' ').shift().trim();
   var message = string.split(' ').splice(1).join(' ').trim();
@@ -35,13 +32,9 @@ ee.on('@dm', function(client, string) {
 });
 
 ee.on('@quit', function(client) {
-  pool.forEach( c => {
-    c.socket.write( `${client.nickname} has left the chat`);
-  });
-
+  client.socket.end();
 });
 
-// gives you a list of current users
 ee.on('@list', function(client) {
   var list = [];
   pool.forEach(function(each) {
@@ -50,7 +43,6 @@ ee.on('@list', function(client) {
   client.socket.write(`Connected users: ${list.join(', ')}\n`);
 });
 
-// gives you possible commands when you type @help
 ee.on('@help', function(client) {
   client.socket.write('what happens when you do @help\n');
 });
@@ -68,8 +60,8 @@ server.on('connection', function(socket) {
 
     if(command.startsWith('@')) {
       ee.emit(command, client, data.toString().split(' ').splice(1).join(' '));
-      console.log('command:', command);
-      console.log('after the @command:', data.toString().split(' ').splice(1).join(' '));
+      console.log('@command:', command);
+      console.log('after the command:', data.toString().split(' ').splice(1).join(' '));
       return;
     }
     ee.emit('default', client, data.toString());
@@ -81,11 +73,9 @@ server.on('connection', function(socket) {
 
   socket.on('close', function() {
     var index = pool.indexOf(client);
-    if (index > -1) {
-      pool.splice(index, 1);
-    }
+    pool.splice(index, 1);
     pool.forEach(c => {
-      c.socket.write(`${client.nickname} has left the chat`);
+      c.socket.write(`${client.nickname} has left the chat\n`);
     });
   });
 });
