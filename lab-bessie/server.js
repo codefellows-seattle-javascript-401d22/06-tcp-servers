@@ -35,11 +35,16 @@ ee.on('@dm', function(client, string) {
 });
 
 ee.on('@quit', function(client, string) {
-  pool.forEach(c => c.socket.write(`${client.nickname} has left the group\n`));
-  console.log('Connection closed');
-  client.socket.destroy();
-  pool.pop(this.client);
-  pool.forEach(c => c.socket.write(`There are ${pool.length} users remaining!\n`));
+  // write what happens when they do @quit
+});
+
+// gives you a list of current users
+ee.on('@list', function(client) {
+  var list = [];
+  pool.forEach(function(each) {
+    list.push(each.nickname);
+  });
+  client.socket.write(`${list}\n`);
 });
 
 // gives you possible commands when you type @help
