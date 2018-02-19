@@ -43,9 +43,9 @@ ee.on('@list', function(client) {
   client.socket.write(`Connected users: ${list.join(', ')}\n`);
 });
 
-ee.on('@help', function(client) {
-  client.socket.write('what happens when you do @help\n');
-});
+// ee.on('@help', function(client) {
+//   client.socket.write('what happens when you do @help\n');
+// });
 
 ee.on('default', function(client) {
   client.socket.write('not a command - please use an @ symbol\n');
