@@ -20,7 +20,7 @@ ee.on('@all', function(client, string) {
 });
 
 ee.on('@me', function(client) {
-  client.socket.write(`Your nickname is currently ${client.nickname}`);
+  client.socket.write(`Your nickname is currently ${client.nickname}\n`);
 });
 
 ee.on('@nickname', function(client, string) {
