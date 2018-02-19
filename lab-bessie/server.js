@@ -34,7 +34,7 @@ ee.on('@dm', function(client, string) {
   });
 });
 
-ee.on('@quit', function(client, string) {
+ee.on('@quit', function(client) {
   pool.forEach( c => {
     c.socket.write( `${client.nickname} has left the chat`);
   });
@@ -55,7 +55,7 @@ ee.on('@help', function(client) {
   client.socket.write('what happens when you do @help\n');
 });
 
-ee.on('default', function(client, string) {
+ee.on('default', function(client) {
   client.socket.write('not a command - please use an @ symbol\n');
 });
 
@@ -68,16 +68,25 @@ server.on('connection', function(socket) {
 
     if(command.startsWith('@')) {
       ee.emit(command, client, data.toString().split(' ').splice(1).join(' '));
-      console.log('my command after the at:', data.toString().split(' ').splice(1).join(' '));
+      console.log('command:', command);
+      console.log('after the @command:', data.toString().split(' ').splice(1).join(' '));
       return;
     }
     ee.emit('default', client, data.toString());
   });
+
   socket.on('error', function(error) {
     console.log(error);
   });
-  socket.on('close', function(close) {
 
+  socket.on('close', function() {
+    var index = pool.indexOf(client);
+    if (index > -1) {
+      pool.splice(index, 1);
+    }
+    pool.forEach(c => {
+      c.socket.write(`${client.nickname} has left the chat`);
+    });
   });
 });
 
