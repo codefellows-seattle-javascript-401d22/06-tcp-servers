@@ -13,7 +13,7 @@ ee.on('default', function(client, string){
 });
 
 ee.on('@help', function(client){
-  client.socket.write(`@all <message> - sends a message to all active users\n
+  client.socket.write(`\n @all <message> - sends a message to all active users\n
   @dm <nickname> <message> - send a message to the user with the associated nickname\n
   @list - printout all active users\n
   @nickname <newnickname> - change your nickname to the newnickname\n`);
@@ -31,14 +31,38 @@ ee.on(`@dm`, function(client, string){
   var msg = string.split(' ').splice(1).join(' ').trim();
   clientPool.forEach(c => {
     if(c.nickname === nickname){
-      c.socket.wriote(`${client.nickname}: ${msg}`);
+      c.socket.write(`${client.nickname}: ${msg}\n`);
       namefound = true;
       return;
     }
   });
   if(!namefound){
-    client.socket.write('that nickname was not found');
+    client.socket.write('that nickname was not found\n');
   }
+});
+
+ee.on('@nickname', function(client, string){
+  let nickname = string.split(' ').shift().trim();
+  client.nickname = nickname;
+  client.socket.write(`user nickname has been changed to ${nickname}\n`);
+});
+
+ee.on('@list', function(client){
+  let userlist = clientPool.map(c => {
+    return c.nickname;
+  });
+  userlist = userlist.join(', ').trim();
+  client.socket.write(`Active User List: ${userlist}\n`);
+});
+
+ee.on('close', function(client){
+  console.log(`${client.nickname} has signed off the server`);
+  const index = clientPool.indexOf(client);
+  clientPool.splice(index, 1);
+});
+
+ee.on('error', function(client){
+  console.log(`${client.nickname} has had an error`);
 });
 
 
@@ -55,6 +79,16 @@ server.on('connection', function(socket){
     }
 
     ee.emit('default', client, data.toString());
+  });
+
+  socket.on('close', () => {
+    let index = clientPool.indexOf(client);
+    clientPool.slice(index, 1);
+    console.log(`${client.nickname} has logged off`);
+  });
+
+  socket.on('error', () => {
+    console.log(`${client.nickname} has had an error`);
   });
 });
 
