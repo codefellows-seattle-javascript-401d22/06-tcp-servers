@@ -35,7 +35,10 @@ ee.on('@dm', function(client, string) {
 });
 
 ee.on('@quit', function(client, string) {
-  // write what happens when they do @quit
+  pool.forEach( c => {
+    c.socket.write( `${client.nickname} has left the chat`);
+  });
+
 });
 
 // gives you a list of current users
@@ -44,12 +47,11 @@ ee.on('@list', function(client) {
   pool.forEach(function(each) {
     list.push(each.nickname);
   });
-  client.socket.write(`${list}\n`);
+  client.socket.write(`Connected users: ${list.join(', ')}\n`);
 });
 
 // gives you possible commands when you type @help
 ee.on('@help', function(client) {
-  console.log('client:', client);
   client.socket.write('what happens when you do @help\n');
 });
 
@@ -63,18 +65,19 @@ server.on('connection', function(socket) {
 
   socket.on('data', function(data) {
     const command = data.toString().split(' ').shift().trim();
-    console.log('command:', JSON.stringify(command));
-    // if(command === '@help') {
-    //   ee.emit(command, client);
-    //   return;
-    // }
+
     if(command.startsWith('@')) {
       ee.emit(command, client, data.toString().split(' ').splice(1).join(' '));
       console.log('my command after the at:', data.toString().split(' ').splice(1).join(' '));
-      console.log('stringified', JSON.stringify(data.toString().split(' ').splice(1).join(' ')));
       return;
     }
     ee.emit('default', client, data.toString());
+  });
+  socket.on('error', function(error) {
+    console.log(error);
+  });
+  socket.on('close', function(close) {
+
   });
 });
 
