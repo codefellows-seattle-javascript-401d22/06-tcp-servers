@@ -7,11 +7,11 @@ const PORT = process.env.PORT || 3000;
 const server = net.createServer();
 const ee = new EE();
 
-const clientPool = [];
+const pool = [];
 
 // Send message to all connected users
 ee.on('@all', function(client, string) {
-  clientPool.forEach( c => {
+  pool.forEach( c => {
     c.socket.write(`${client.nickname}: ${string}`)
   })
 })
@@ -20,25 +20,24 @@ ee.on('@all', function(client, string) {
 ee.on('@dm', function(client, string) {
   var nickname = string.split(' ').shift().trim();
   var message = string.split(' ').splice(1).join(' ').trim();
-  clientPool.forEach( c => {
+  pool.forEach( c => {
     if (c.nickname === nickname) {
-      c.socket.write(`${nickname}: ${message}`)
+      c.socket.write(`DM from ${client.nickname}: ${message}\n`)
     }
   })
 })
 
 // Set new user nickname
 ee.on('@nickname', function(client, string) {
-  let newNickname = string.split(' ').shift().trim();
-  client.nickname = newNickname;
+  let nickname = string.split(' ').shift().trim();
+  client.nickname = nickname;
   client.socket.write(`Nickname has been changed to ${client.nickname}\n`)
 })
 
 // List all connected users
-ee.on('@list', function(client, string) {
-  console.log(client.nickname)
-  clientPool.forEach( c => {
-    client.socket.write(`connected user: ${client.nickname}\n`)
+ee.on('@list', function(client) {
+  pool.forEach( c => {
+    client.socket.write(`connected user: ${c.nickname}\n`)
   })
 })
 
@@ -50,13 +49,13 @@ ee.on('@quit', function(client) {
 // Helper 
 ee.on('@help', function(client, string) {
   client.socket.write(
-    `\n
+    `\r
     @all - send message to all connected users\n
     @dm <username> - send message to specific user\n
     @nickname - set new nickname\n
     @list - list all connected users\n
-    @quit - disconnects user\n\r
-    `)
+    @quit - disconnects user\n\r\n`
+  )
 })
 
 ee.on('default', function(client, string) {
@@ -65,13 +64,13 @@ ee.on('default', function(client, string) {
 
 server.on('connection', function(socket) {
   var client = new Client(socket);
-  clientPool.push(client);
+  pool.push(client);
   console.log(`Client connected: ${client.nickname}`)
 
   socket.on('close', function() {
     console.log(`Client disconnected: ${client.nickname}`)
-    var idx = clientPool.indexOf(client)
-    clientPool.splice(idx, 1);
+    var idx = pool.indexOf(client)
+    pool.splice(idx, 1);
   })
   
   socket.on('data', function(data) {
