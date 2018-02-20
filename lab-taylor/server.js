@@ -28,9 +28,23 @@ ee.on('@dm', function(client, string) {
 
 ee.on('@nickname', function(client, string) {
     let nickname = string.split(' ').shift().trim();
-    client.nickname = nickname;
-    client.socket.write(`user nickname has been changed to ${nickname}\n`);
+    let taken = false;
+    pool.forEach( c => {
+        if(c.nickname === nickname) {
+            taken = true;
+            client.socket.write(`That nickname is already taken, please try another...\n`);
+            return;
+        }
+    });
+    if(taken === false) {
+        client.nickname = nickname;
+        client.socket.write(`user nickname has been changed to ${nickname}\n`);
+    }
 });
+
+        
+            
+
 
 ee.on('@list', function(client) {
     client.socket.write(`Connected users--\n`)
