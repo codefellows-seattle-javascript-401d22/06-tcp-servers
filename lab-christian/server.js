@@ -16,6 +16,12 @@ ee.on('@help', function(client, string) {
   })
 })
 
+ee.on('@list', function(client, string) {
+  for(var i = 0; i < clientPool.length; i++) {
+    client.socket.write('User list: ', clientPool[i].nickname);
+  }
+})
+
 ee.on('@dm', function(client, string) {
   var nickname = string.split(' ').shift().trim();
   var message = string.split(' ').splice(1).join(' ').trim();
@@ -57,6 +63,10 @@ server.on('connection', function(socket) {
 
     ee.emit('default', client, data.toString());
   });
+})
+
+server.on('error', (err) => {
+  throw err;
 })
 
 server.listen(PORT, () => {
