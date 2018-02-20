@@ -9,6 +9,24 @@ const ee = new EE();
 
 const clientPool = [];
 
+
+ee.on('@help', function(client, string) {
+  clientPool.forEach( c => {
+    c.socket.write(`${client.nickname}: Here are all the commands. \n @all: Sends a message to all users in the server. \n @dm: send a direct message to a specific user (must use correct nickname) \n @nickname: change your username on the server! \n`)
+  })
+})
+
+ee.on('@dm', function(client, string) {
+  var nickname = string.split(' ').shift().trim();
+  var message = string.split(' ').splice(1).join(' ').trim();
+  
+  clientPool.forEach( c => {
+    if (c.nickname === nickname) {
+      client.socket.write(`${client.nickname}: ${message}`)
+    };
+  });
+});
+
 ee.on('@all', function(client, string) {
   clientPool.forEach( c=> {
     c.socket.write(`${client.nickname}: ${string}`);
