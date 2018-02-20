@@ -12,14 +12,14 @@ const clientPool = [];
 
 ee.on('@help', function(client, string) {
   clientPool.forEach( c => {
-    c.socket.write(`${client.nickname}: Here are all the commands. \n @all: Sends a message to all users in the server. \n @dm: send a direct message to a specific user (must use correct nickname) \n @nickname: change your username on the server! \n`)
+    c.socket.write(`${client.nickname}: Here are all the commands. \n @all: Sends a message to all users in the server. \n @dm: send a direct message to a specific user (must use correct nickname) \n @nickname: change your username on the server! \n @list: lists all users on the server. \n @quit: disconnects you from the server.`)
   })
 })
 
-ee.on('@list', function(client, string) {
-  for(var i = 0; i < clientPool.length; i++) {
-    client.socket.write('User list: ', clientPool[i].nickname);
-  }
+ee.on('@list', function(client) {
+  clientPool.forEach( c => {
+    client.socket.write(`User: ${c.nickname}\n`);
+  })
 })
 
 ee.on('@dm', function(client, string) {
@@ -47,6 +47,11 @@ ee.on('@nickname', function(client, string) {
 
 ee.on('default', function(client, string) {
   client.socket.write('Not a command - please use an @ symbol \n');
+})
+
+ee.on('@quit', function(client) {
+  client.socket.end();
+  console.log('disconnected');
 })
 
 server.on('connection', function(socket) {
