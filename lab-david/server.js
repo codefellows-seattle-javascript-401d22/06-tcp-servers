@@ -55,17 +55,6 @@ ee.on('@list', function(client){
   client.socket.write(`Active User List: ${userlist}\n`);
 });
 
-ee.on('close', function(client){
-  console.log(`${client.nickname} has signed off the server`);
-  const index = clientPool.indexOf(client);
-  clientPool.splice(index, 1);
-});
-
-ee.on('error', function(client){
-  console.log(`${client.nickname} has had an error`);
-});
-
-
 server.on('connection', function(socket){
   var client = new Client(socket);
   clientPool.push(client);
