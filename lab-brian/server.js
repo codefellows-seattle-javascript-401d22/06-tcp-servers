@@ -36,6 +36,28 @@ ee.on('@nickname', function(client, string) {
   client.socket.write(`user nickname has been changed to ${nickname}\n`);
 });
 
+ee.on('close', function(client) {
+  let idx;
+  for(let i in pool) {
+    if(client.nickname === pool[i].nickname) {
+      idx = i;
+    }
+  }
+  client.socket.write('Logging Out.\n');
+  pool.splice(idx, 1);
+});
+
+ee.on('@quit', function(client) {
+  ee.emit('close', client);
+  client.socket.destroy();
+});
+
+ee.on('@list', function(client) {
+  pool.forEach(c => {
+    client.socket.write(`${c.nickname}\n`);
+  });
+});
+
 server.on('connection', function(socket) {
   var client = new Client(socket);
   pool.push(client);
@@ -44,10 +66,15 @@ server.on('connection', function(socket) {
     // console.log(command);
     if(command.startsWith('@')) {
       ee.emit(command, client, data.toString().split(' ').splice(1).join(' '));
+      console.log(command, data.toString().split(' ').splice(1).join(' '));
       return;
     }
     ee.emit('default', client, data.toString());
   });
+});
+
+ee.on('error', function(error) {
+  throw new Error(`Error: `, error);
 });
 
 
