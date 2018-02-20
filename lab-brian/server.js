@@ -8,6 +8,21 @@ const server = net.createServer();
 const ee = new EE;
 const pool = [];
 
+ee.on('close', function(client) {
+  let idx;
+  for(let i in pool) {
+    if(client.nickname === pool[i].nickname) {
+      idx = i;
+    }
+  }
+  client.socket.write('Logging Out.\n');
+  pool.splice(idx, 1);
+});
+
+ee.on('error', function(error) {
+  throw new Error(`Error: `, error);
+});
+
 ee.on('default', function(client, string) {
   string = string.trim();
   client.socket.write(`${string} is not a command please use at symbol\n`);
@@ -23,9 +38,9 @@ ee.on('@dm', function(client, string) {
   var nickname = string.split(' ').shift().trim();
   var message = string.split(' ').splice(1).join(' ').trim();
 
-  pool.forEach(c => {
-    if(c.nickname === client.nickname) {
-      c.socket.write(`${client.nickname}: ${string}`);
+  pool.forEach( c => {
+    if(c.nickname === nickname) {
+      c.socket.write(`${client.nickname}: ${message}`);
     }
   });
 });
@@ -36,26 +51,19 @@ ee.on('@nickname', function(client, string) {
   client.socket.write(`user nickname has been changed to ${nickname}\n`);
 });
 
-ee.on('close', function(client) {
-  let idx;
-  for(let i in pool) {
-    if(client.nickname === pool[i].nickname) {
-      idx = i;
-    }
-  }
-  client.socket.write('Logging Out.\n');
-  pool.splice(idx, 1);
+ee.on('@list', function(client) {
+  pool.forEach(c => {
+    client.socket.write(`${c.nickname}\n`);
+  });
+});
+
+ee.on('@help', function(client) {
+  client.socket.write(`@all: message all users\n@dm [username]: direct message a user\n@quit: logout\n@list: list all users logged on\n@nickname: change your nickname`);
 });
 
 ee.on('@quit', function(client) {
   ee.emit('close', client);
   client.socket.destroy();
-});
-
-ee.on('@list', function(client) {
-  pool.forEach(c => {
-    client.socket.write(`${c.nickname}\n`);
-  });
 });
 
 server.on('connection', function(socket) {
@@ -72,11 +80,6 @@ server.on('connection', function(socket) {
     ee.emit('default', client, data.toString());
   });
 });
-
-ee.on('error', function(error) {
-  throw new Error(`Error: `, error);
-});
-
 
 server.listen(PORT, () => {
   console.log(`listening on ${PORT}`);
