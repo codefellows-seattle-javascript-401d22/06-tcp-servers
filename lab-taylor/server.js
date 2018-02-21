@@ -15,6 +15,22 @@ ee.on('@all', function(client, string) {
     });
 });
 
+ee.on('@gm', function(client, string) {
+    var names = string.split(':')[0].split(' ');
+    var message = string.split(':')[1];
+    
+    
+    for(var i = 0; i < pool.length; i++){
+        for(var j = 0; j < names.length; j++) {
+            if(pool[i].nickname === names[j]){
+                pool[i].socket.write(`${client.nickname}: ${message}\n`);
+                break;
+            }
+        }
+    }
+});
+    
+    
 ee.on('@dm', function(client, string) {
     var nickname = string.split(' ').shift().trim();
     var message = string.split(' ').splice(1).join(' ').trim();
@@ -47,29 +63,30 @@ ee.on('@nickname', function(client, string) {
 
 
 ee.on('@list', function(client) {
-    client.socket.write(`Connected users--\n`)
+    client.socket.write(`Connected users--\n`);
     pool.forEach( c => {
         client.socket.write(`User: ${c.nickname}\n`);
     });
 });
 
 ee.on('@quit', function(client) {
-    client.socket.write(`You are now disconnected, ${client.nickname}`)
+    client.socket.write(`You are now disconnected, ${client.nickname}`);
     client.socket.end();
   });
 
-ee.on('@help', function(client,string) {
+ee.on('@help', function(client) {
     client.socket.write(`
     
     @all <message> -- sends message to all connected users\n
     @dm <nickname> <message> -- sends message to current user with specified nickname\n
+    @gm <nickname> <nickname> ... : <message> -- sends messages to users specified before the colon \n 
     @nickname <nickname> -- changes your nickname to specified nickname \n
     @list -- returns list of current users\n
     @quit -- disconnects current user\r\n
     `);
 });
 
-ee.on('default', function(client, string) {
+ee.on('default', function(client) {
     client.socket.write('not a command - please use an @ symbol \n');
 });
 
@@ -77,7 +94,7 @@ ee.on('default', function(client, string) {
 server.on('connection', function(socket) {
     var client = new Client(socket);
     pool.push(client);
-    client.socket.write(`Welcome, type @help for commands--\n`);
+    client.socket.write(``);
     
     socket.on('data', function(data) {
         const command = data.toString().split(' ').shift().trim();
@@ -100,13 +117,16 @@ server.on('connection', function(socket) {
         console.log(err);
     });
 });
+    
+server.listen(PORT, () => {
+    console.log(`listening on ${PORT}`);
+});
+
+    
+
 
 
 
     
 
 
-
-server.listen(PORT, () => {
-    console.log(`listening on ${PORT}`);
-});

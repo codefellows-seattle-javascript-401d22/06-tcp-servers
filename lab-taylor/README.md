@@ -15,6 +15,7 @@ Once you are successfully logged in, there are a number of commands you can run 
 
   - `@all <message>` -- sends message to all connected users
   - `@dm <nickname> <message>` -- sends message to current user with specified nickname
+  - `@gm <nickname> <nickname> ... : <message>` -- sends messages to users specified before the colon 
   - `@nickname <nickname>` -- changes your nickname to specified nickname 
   - `@list` -- returns list of current users
   - `@quit` -- disconnects current user
