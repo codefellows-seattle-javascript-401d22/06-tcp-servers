@@ -35,7 +35,8 @@ ee.on('default', function(client) {
 
 ee.on('@dm', function(client, string) {
   var nickname = string.split(' ').shift().trim();
-  var message = string.split(' ').splice(1).join(' ');
+  var message = string.split(' ').slice(1).join(' ');
+
   clientPool.forEach(c => {
     if (c.nickname === nickname) {
       c.socket.write(`${client.nickname}: ${message}\n`);
