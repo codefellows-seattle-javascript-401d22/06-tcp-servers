@@ -43,9 +43,12 @@ ee.on('@list', function(client) {
   });
 });
 
-ee.on('@quit', function(server){
-  server.end();
-} );
+ee.on('@quit', function(client){
+  userPool.forEach(c => {
+    userPool.pop(c);
+  });
+  client.socket.end();
+});
 
 server.on('connection', function(socket) {
   var client = new Client(socket);
