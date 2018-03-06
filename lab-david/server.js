@@ -16,7 +16,12 @@ ee.on('@help', function(client){
   client.socket.write(`\n @all <message> - sends a message to all active users\n
   @dm <nickname> <message> - send a message to the user with the associated nickname\n
   @list - printout all active users\n
-  @nickname <newnickname> - change your nickname to the newnickname\n`);
+  @nickname <newnickname> - change your nickname to the newnickname\n
+  @quit - quit the tcp server\n`);
+});
+
+ee.on('@quit', function(client){
+  client.socket.end();
 });
 
 ee.on('@all', function(client, string){
@@ -72,7 +77,7 @@ server.on('connection', function(socket){
 
   socket.on('close', () => {
     let index = clientPool.indexOf(client);
-    clientPool.slice(index, 1);
+    clientPool.splice(index, 1);
     console.log(`${client.nickname} has logged off`);
   });
 

@@ -6,4 +6,5 @@
 @all
 @nickname
 @list 
+@quit
 ```
