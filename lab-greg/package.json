@@ -1,0 +1,26 @@
+{
+  "name": "06-tcp-servers",
+  "version": "1.0.0",
+  "description": "![cf](https://i.imgur.com/7v5ASc8.png) Lab 06: TCP Chat Server ======",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codefellows-seattle-javascript-401d22/06-tcp-servers.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codefellows-seattle-javascript-401d22/06-tcp-servers/issues"
+  },
+  "homepage": "https://github.com/codefellows-seattle-javascript-401d22/06-tcp-servers#readme",
+  "dependencies": {
+    "eslint": "^4.18.2",
+    "jest": "^22.4.2",
+    "superagent": "^3.8.2"
+  }
+}
